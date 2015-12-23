@@ -4,6 +4,7 @@
 </header>
 <section>
 	<form action="/contato/<%- id%>" method="post">
+		<input type="hidden" name="_method" value="put">
 		<label>Nome:</label>
 		<input type="text" name="contato[nome]" value="<%- contato.nome %>">
 		<label>E-mail:</label>

@@ -17,6 +17,7 @@
     "body-parser":"*",
     "express-session": "^1.7.6",
     "cookie-parser":"*",
-    "method-override":"*"
+    "method-override":"*",
+    "socket.io":"*"
   }
 }
