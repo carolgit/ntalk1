@@ -6,13 +6,22 @@ session = require('express-session'), cookieParser = require('cookie-parser'), m
 
 var app = express();
 
+const KEY = 'ntalk.sid', SECRET = 'ntalk';
+var cookie = cookieParser(SECRET)
+, store = new session.MemoryStore()
+, sessOpts = {secret: SECRET, key: KEY, store: store}
+, session2 = session(sessOpts);
+
+
 app.set('views', __dirname + '/views');
 
 app.set('view engine', 'ejs');
 
-app.use(cookieParser('ntalk'));
+app.use(cookieParser(SECRET));
 
-app.use(session());
+// app.use(session());
+
+app.use(session2);
 
 app.use(bodyParser());
 
@@ -31,15 +40,42 @@ app.use(express.static(__dirname + '/public'));
  // app.use(error.notFound);
  // app.use(error.serverError);
 
-load('models').then('controllers').then('routes').into(app);
-
-io.sockets.on('connection', function(client){
-	client.on('send-server', function (data){
-		var msg = "<b>"+data.nome+":</b> "+data.msg+"<br>";
-		client.emit('send-client',msg);
-		client.broadcast.emit('send-client', msg);
-	});
+io.set('authorization', function(data, accept){
+  cookie(data, {}, function(err){  
+    var sessionID = data.signedCookies[KEY];
+    console.log(sessionID);
+    store.get(sessionID, function(err, session){
+      if(err || !session){
+        //FIXME sempre caindo aqui
+        console.log('error session');
+        accept(null||false);
+      }else{
+        console.log('accept session');
+        data.session = session;
+        accept(null, true);
+      }
+    });
+  });
 });
+// io.use(function(socket, next) {
+//   var data = socket.request;
+//   cookie(data, {}, function(err) {
+//     var sessionID = data.signedCookies[KEY];
+//     store.get(sessionID, function(err, session) {
+//       if (err || !session) {
+//         return next(new Error('Acesso negado!'));
+//       } else {
+//         socket.handshake.session = session;
+//         return next();
+//       }
+//     });
+//   });
+// });
+
+
+
+load('models').then('controllers').then('routes').into(app);
+load('sockets').into(io);
 
 server.listen(3090, function(){
   console.log("Ntalk no ar.");
