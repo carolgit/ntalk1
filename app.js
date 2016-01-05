@@ -1,10 +1,9 @@
 var express = require('express'), load = require('express-load'), bodyParser = require('body-parser'),
 session = require('express-session'), cookieParser = require('cookie-parser'), methodOverride = require('method-override')
 , error = require('./middleware/error')
+, app = express()
 , server = require('http').createServer(app)
 , io = require('socket.io').listen(server);
-
-var app = express();
 
 const KEY = 'ntalk.sid', SECRET = 'ntalk';
 var cookie = cookieParser(SECRET)
@@ -17,7 +16,7 @@ app.set('views', __dirname + '/views');
 
 app.set('view engine', 'ejs');
 
-app.use(cookieParser(SECRET));
+app.use(cookie);
 
 // app.use(session());
 
@@ -52,6 +51,7 @@ io.set('authorization', function(data, accept){
       }else{
         console.log('accept session');
         data.session = session;
+        console.log(data.session);
         accept(null, true);
       }
     });
@@ -77,10 +77,10 @@ io.set('authorization', function(data, accept){
 load('models').then('controllers').then('routes').into(app);
 load('sockets').into(io);
 
-server.listen(3090, function(){
-  console.log("Ntalk no ar.");
-});
+// server.listen(3090, function(){
+//   console.log("Ntalk no ar.");
+// });
 
-app.listen(3000, function(){
+server.listen(3000, function(){
   console.log("Ntalk no ar.");
 });
