@@ -3,7 +3,6 @@ module.exports = function(io){
 	, md5 = crypto.createHash('md5')
 	,sockets = io.sockets;
 	sockets.on('connection', function(client){
-		console.log(client.handshake.session);
 		var session = client.handshake.session, usuario = session.usuario;
 		client.set('email', usuario.email);
 
@@ -44,3 +43,18 @@ module.exports = function(io){
 		});
 	});
 }
+
+// io.use(function(socket, next) {
+//   var data = socket.request;
+//   cookie(data, {}, function(err) {
+//     var sessionID = data.signedCookies[KEY];
+//     store.get(sessionID, function(err, session) {
+//       if (err || !session) {
+//         return next(new Error('Acesso negado!'));
+//       } else {
+//         socket.handshake.session = session;
+//         return next();
+//       }
+//     });
+//   });
+// });
